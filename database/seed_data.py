@@ -345,5 +345,7 @@ def seed_hackathon_demo_data():
 
     print("Hackathon demo data seeded successfully.")
 
+__all__ = ["seed_hackathon_demo_data", "reset_database"]
+
 if __name__ == "__main__":
     seed_hackathon_demo_data()

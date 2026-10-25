@@ -6,7 +6,10 @@ from sqlalchemy import (
     Column, Integer, String, Boolean, DateTime, Date, Time, Text, ForeignKey, Float
 )
 from sqlalchemy.orm import relationship
-from database.connection import Base
+try:
+    from .connection import Base
+except (ImportError, ValueError):
+    from database.connection import Base
 
 def utc_now():
     return datetime.now(timezone.utc)

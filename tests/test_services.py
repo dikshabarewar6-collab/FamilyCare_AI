@@ -13,8 +13,11 @@ PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-from database.connection import get_db, init_db
-from database.seed_data import seed_hackathon_demo_data
+try:
+    from database.connection import get_db, init_db
+    from database.seed_data import seed_hackathon_demo_data
+except (ImportError, ModuleNotFoundError):
+    from database import get_db, init_db, seed_hackathon_demo_data
 from services.member_service import (
     create_family_member, get_family_members, get_elderly_members,
     update_family_member, delete_family_member

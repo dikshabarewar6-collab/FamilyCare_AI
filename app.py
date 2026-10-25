@@ -11,8 +11,11 @@ if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
 import streamlit as st
-from database.connection import init_db
-from database.seed_data import seed_hackathon_demo_data
+try:
+    from database.connection import init_db
+    from database.seed_data import seed_hackathon_demo_data
+except (ImportError, ModuleNotFoundError):
+    from database import init_db, seed_hackathon_demo_data
 from services.member_service import get_family_members
 
 # Initialize Page Configuration

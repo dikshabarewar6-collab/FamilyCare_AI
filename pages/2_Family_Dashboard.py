@@ -23,7 +23,10 @@ from services.medication_service import get_medication_reminders, get_today_medi
 from services.appointment_service import get_upcoming_appointments
 from services.task_service import get_care_tasks, get_pending_tasks_count
 from services.notification_service import get_recent_notifications
-from database.seed_data import seed_hackathon_demo_data, reset_database
+try:
+    from database.seed_data import seed_hackathon_demo_data, reset_database
+except (ImportError, ModuleNotFoundError):
+    from database import seed_hackathon_demo_data, reset_database
 
 def render_dashboard_page():
     apply_custom_css()
