@@ -172,7 +172,7 @@ def render_dashboard_page():
                             🏥 Hospital: <strong>{monitored_member.preferred_hospital or 'Not specified'}</strong>
                         </span>
                         <span style="font-size:0.85rem; color:#475569;">
-                            🛡️ Primary Caregiver: <strong>{monitored_member.assigned_caregiver.full_name if monitored_member.assigned_caregiver else 'Unassigned'}</strong>
+                            🛡️ Primary Caregiver: <strong>{monitored_member.assigned_caregiver.full_name    if monitored_member.assigned_caregiver else 'Unassigned'}</strong>
                         </span>
                     </div>
                 </div>

@@ -1,18 +1,29 @@
+
 """
 Service layer for Doctor & Specialist Appointments.
+Handles appointment creation, retrieval, and status updates.
+Prevents DetachedInstanceError by eagerly loading relationships.
 """
+
 from datetime import datetime, date
 from typing import List, Optional, Dict, Any
+
+from sqlalchemy.orm import joinedload
+
 from database.connection import get_db
 from database.models import Appointment, FamilyMember, Notification
 
+
 def create_appointment(data: Dict[str, Any]) -> Appointment:
     """Create a new doctor or specialist appointment."""
+
     with get_db() as db:
         app_dt = data["appointment_datetime"]
+
         if isinstance(app_dt, str):
             app_dt = datetime.fromisoformat(app_dt)
 
+        # Create appointment
         appointment = Appointment(
             member_id=data["member_id"],
             title=data["title"].strip(),
@@ -26,31 +37,74 @@ def create_appointment(data: Dict[str, Any]) -> Appointment:
             transport_notes=data.get("transport_notes", "").strip(),
             notes=data.get("notes", "").strip()
         )
+
         db.add(appointment)
         db.flush()
 
-        member = db.query(FamilyMember).filter(FamilyMember.id == appointment.member_id).first()
+        # Retrieve the associated family member
+        member = (
+            db.query(FamilyMember)
+            .filter(FamilyMember.id == appointment.member_id)
+            .first()
+        )
+
+        # Create notification
         mem_name = member.full_name if member else "Family Member"
+        family_id = member.family_id if member else 1
+
+        specialty = appointment.specialty or "General"
 
         notif = Notification(
-            family_id=member.family_id if member else 1,
+            family_id=family_id,
             member_id=appointment.member_id,
             title=f"New Appointment: {appointment.title}",
-            message=f"{mem_name} has an appointment with {appointment.doctor_name} ({appointment.specialty}) on {appointment.appointment_datetime.strftime('%b %d at %I:%M %p')}.",
+            message=(
+                f"{mem_name} has an appointment with "
+                f"{appointment.doctor_name} ({specialty}) on "
+                f"{appointment.appointment_datetime.strftime('%b %d at %I:%M %p')}."
+            ),
             category="Appointment",
             priority="Info"
         )
-        db.add(notif)
-        db.refresh(appointment)
-        return appointment
 
-def get_upcoming_appointments(family_id: int = 1, limit: int = 10) -> List[Appointment]:
-    """Retrieve upcoming appointments starting from today."""
-    today_start = datetime.combine(date.today(), datetime.min.time())
-    with get_db() as db:
-        return (
+        db.add(notif)
+        db.flush()
+
+        # Reload appointment with relationships before session closes
+        appointment_id = appointment.id
+
+        result = (
             db.query(Appointment)
-            .join(FamilyMember, Appointment.member_id == FamilyMember.id)
+            .options(
+                joinedload(Appointment.assigned_caregiver),
+                joinedload(Appointment.member)
+            )
+            .filter(Appointment.id == appointment_id)
+            .first()
+        )
+
+        return result
+
+
+def get_upcoming_appointments(
+    family_id: int = 1,
+    limit: int = 10
+) -> List[Appointment]:
+    """Retrieve upcoming appointments with caregiver and member details."""
+
+    today_start = datetime.combine(date.today(), datetime.min.time())
+
+    with get_db() as db:
+        appointments = (
+            db.query(Appointment)
+            .join(
+                FamilyMember,
+                Appointment.member_id == FamilyMember.id
+            )
+            .options(
+                joinedload(Appointment.assigned_caregiver),
+                joinedload(Appointment.member)
+            )
             .filter(FamilyMember.family_id == family_id)
             .filter(Appointment.appointment_datetime >= today_start)
             .order_by(Appointment.appointment_datetime.asc())
@@ -58,24 +112,76 @@ def get_upcoming_appointments(family_id: int = 1, limit: int = 10) -> List[Appoi
             .all()
         )
 
+        return appointments
+
+
 def get_all_appointments(family_id: int = 1) -> List[Appointment]:
-    """Retrieve all appointments ordered by datetime."""
+    """Retrieve all appointments with caregiver and member details."""
+
     with get_db() as db:
-        return (
+        appointments = (
             db.query(Appointment)
-            .join(FamilyMember, Appointment.member_id == FamilyMember.id)
+            .join(
+                FamilyMember,
+                Appointment.member_id == FamilyMember.id
+            )
+            .options(
+                joinedload(Appointment.assigned_caregiver),
+                joinedload(Appointment.member)
+            )
             .filter(FamilyMember.family_id == family_id)
             .order_by(Appointment.appointment_datetime.desc())
             .all()
         )
 
-def update_appointment_status(appointment_id: int, status: str) -> Optional[Appointment]:
-    """Update appointment status (e.g. Completed, Rescheduled, Cancelled)."""
+        return appointments
+
+
+def update_appointment_status(
+    appointment_id: int,
+    status: str
+) -> Optional[Appointment]:
+    """Update appointment status and return the updated appointment."""
+
+    allowed_statuses = {
+        "Upcoming",
+        "Completed",
+        "Rescheduled",
+        "Cancelled"
+    }
+
+    if status not in allowed_statuses:
+        raise ValueError(
+            f"Invalid appointment status: {status}. "
+            f"Allowed statuses: {', '.join(sorted(allowed_statuses))}"
+        )
+
     with get_db() as db:
-        app = db.query(Appointment).filter(Appointment.id == appointment_id).first()
-        if not app:
+        appointment = (
+            db.query(Appointment)
+            .options(
+                joinedload(Appointment.assigned_caregiver),
+                joinedload(Appointment.member)
+            )
+            .filter(Appointment.id == appointment_id)
+            .first()
+        )
+
+        if not appointment:
             return None
-        app.status = status
+
+        appointment.status = status
         db.flush()
-        db.refresh(app)
-        return app
+
+        # Refresh the appointment with relationships loaded
+        result = (
+            db.query(Appointment)
+            .options(
+                joinedload(Appointment.assigned_caregiver),
+                joinedload(Appointment.member)
+            )
+            .filter(Appointment.id == appointment_id)
+            .first()
+        )
+
+        return result

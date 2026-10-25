@@ -84,5 +84,39 @@ with st.sidebar:
 </div>"""
     )
 
+
+# Global button visibility and hover styling
+st.markdown("""
+<style>
+
+/* Keep button text and icons visible by default */
+.stButton > button,
+.stFormSubmitButton > button {
+    background-color: #F3F0FF !important;
+    color: #26324A !important;
+    border: 1px solid #D9D6FE !important;
+    border-radius: 10px !important;
+    transition: all 0.2s ease-in-out !important;
+}
+
+/* Ensure nested text and icons inherit the button color */
+.stButton > button *,
+.stFormSubmitButton > button * {
+    color: inherit !important;
+}
+
+/* Hover effect */
+.stButton > button:hover,
+.stFormSubmitButton > button:hover {
+    background-color: #E4DEFF !important;
+    color: #4F46E5 !important;
+    border-color: #8B5CF6 !important;
+    box-shadow: 0 3px 10px rgba(99, 102, 241, 0.15) !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+
 nav = st.navigation(pages)
 nav.run()
