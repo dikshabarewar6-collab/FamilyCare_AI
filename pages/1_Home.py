@@ -10,7 +10,7 @@ if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
 import streamlit as st
-from components.ui_helpers import apply_custom_css, render_disclaimer, render_ai_badge
+from components.ui_helpers import apply_custom_css, render_disclaimer, render_ai_badge, render_html
 from components.three_scene import render_3d_care_scene
 import config
 
@@ -18,7 +18,7 @@ def render_home_page():
     apply_custom_css()
 
     # 1. Hero Section
-    st.markdown(
+    render_html(
         f"""
         <div class="fc-hero">
             <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1.5rem;">
@@ -41,15 +41,14 @@ def render_home_page():
                 </div>
             </div>
         </div>
-        """,
-        unsafe_allow_html=True
+        """
     )
 
     # 2. Interactive 3D Experience Section
     col_3d, col_info = st.columns([1.3, 0.9])
 
     with col_3d:
-        st.markdown(
+        render_html(
             """
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
                 <span style="font-weight:700; color:#334155; font-size:0.95rem;">
@@ -59,13 +58,12 @@ def render_home_page():
                     Drag to rotate • Real-time WebGL
                 </span>
             </div>
-            """,
-            unsafe_allow_html=True
+            """
         )
         render_3d_care_scene(height=410)
 
     with col_info:
-        st.markdown(
+        render_html(
             """
             <div class="fc-card" style="height: 410px; display:flex; flex-direction:column; justify-content:space-between;">
                 <div>
@@ -103,8 +101,7 @@ def render_home_page():
                     </div>
                 </div>
             </div>
-            """,
-            unsafe_allow_html=True
+            """
         )
 
     # 3. Call-To-Action Quick Navigation
@@ -124,8 +121,8 @@ def render_home_page():
             st.switch_page("pages/9_Data_Analytics.py")
 
     # 4. Problem & Solution
-    st.markdown("<div style='height: 1.5rem;'></div>", unsafe_allow_html=True)
-    st.markdown(
+    render_html("<div style='height: 1.5rem;'></div>")
+    render_html(
         """
         <div style="text-align:center; max-width:760px; margin: 0 auto 2rem auto;">
             <span class="fc-badge awaiting" style="margin-bottom:0.5rem;">The Challenge</span>
@@ -138,13 +135,12 @@ def render_home_page():
                 and siblings constantly ask: <em>"Who checked on Mom today?"</em>
             </p>
         </div>
-        """,
-        unsafe_allow_html=True
+        """
     )
 
     ps_col1, ps_col2 = st.columns(2)
     with ps_col1:
-        st.markdown(
+        render_html(
             """
             <div class="fc-card" style="border-left: 4px solid #EF4444;">
                 <h4 style="color:#B91C1C; margin:0 0 0.5rem 0;">❌ The Traditional Struggle</h4>
@@ -155,11 +151,10 @@ def render_home_page():
                     <li>Caregiver burnout from lack of shared accountability between siblings.</li>
                 </ul>
             </div>
-            """,
-            unsafe_allow_html=True
+            """
         )
     with ps_col2:
-        st.markdown(
+        render_html(
             """
             <div class="fc-card" style="border-left: 4px solid #10B981;">
                 <h4 style="color:#047857; margin:0 0 0.5rem 0;">✨ The FamilyCare AI Solution</h4>
@@ -170,13 +165,12 @@ def render_home_page():
                     <li>Privacy-first AI intelligence distilling weekly caregiver summaries via Gemini.</li>
                 </ul>
             </div>
-            """,
-            unsafe_allow_html=True
+            """
         )
 
     # 5. Core Platform Features
-    st.markdown("<div style='height: 1.5rem;'></div>", unsafe_allow_html=True)
-    st.markdown(
+    render_html("<div style='height: 1.5rem;'></div>")
+    render_html(
         """
         <div style="text-align:center; max-width:760px; margin: 0 auto 2rem auto;">
             <span class="fc-badge completed" style="margin-bottom:0.5rem;">Capabilities</span>
@@ -184,13 +178,12 @@ def render_home_page():
                 Comprehensive Platform Features
             </h2>
         </div>
-        """,
-        unsafe_allow_html=True
+        """
     )
 
     f1, f2, f3 = st.columns(3)
     with f1:
-        st.markdown(
+        render_html(
             """
             <div class="fc-feature-card">
                 <div class="fc-feature-icon">☀️</div>
@@ -200,11 +193,10 @@ def render_home_page():
                     triggers simulated caregiver alerts without panicking families.
                 </div>
             </div>
-            """,
-            unsafe_allow_html=True
+            """
         )
     with f2:
-        st.markdown(
+        render_html(
             """
             <div class="fc-feature-card">
                 <div class="fc-feature-icon">💊</div>
@@ -214,11 +206,10 @@ def render_home_page():
                     from verified consumption with clear medical safeguards.
                 </div>
             </div>
-            """,
-            unsafe_allow_html=True
+            """
         )
     with f3:
-        st.markdown(
+        render_html(
             """
             <div class="fc-feature-card">
                 <div class="fc-feature-icon">🗓️</div>
@@ -228,14 +219,13 @@ def render_home_page():
                     with due dates and priority tracking.
                 </div>
             </div>
-            """,
-            unsafe_allow_html=True
+            """
         )
 
-    st.markdown("<div style='height: 1rem;'></div>", unsafe_allow_html=True)
+    render_html("<div style='height: 1rem;'></div>")
     f4, f5, f6 = st.columns(3)
     with f4:
-        st.markdown(
+        render_html(
             """
             <div class="fc-feature-card">
                 <div class="fc-feature-icon">✨</div>
@@ -245,11 +235,10 @@ def render_home_page():
                     intelligent family coordination recommendations powered by Google Gen AI.
                 </div>
             </div>
-            """,
-            unsafe_allow_html=True
+            """
         )
     with f5:
-        st.markdown(
+        render_html(
             """
             <div class="fc-feature-card">
                 <div class="fc-feature-icon">📈</div>
@@ -259,11 +248,10 @@ def render_home_page():
                     surface check-in adherence and medication patterns over time.
                 </div>
             </div>
-            """,
-            unsafe_allow_html=True
+            """
         )
     with f6:
-        st.markdown(
+        render_html(
             """
             <div class="fc-feature-card">
                 <div class="fc-feature-icon">🧠</div>
@@ -273,13 +261,12 @@ def render_home_page():
                     detection on numerical behavior metrics with clear medical disclaimers.
                 </div>
             </div>
-            """,
-            unsafe_allow_html=True
+            """
         )
 
     # 6. How It Works Pipeline
-    st.markdown("<div style='height: 2rem;'></div>", unsafe_allow_html=True)
-    st.markdown(
+    render_html("<div style='height: 2rem;'></div>")
+    render_html(
         """
         <div style="text-align:center; max-width:760px; margin: 0 auto 1.5rem auto;">
             <span class="fc-badge awaiting">Process Flow</span>
@@ -287,13 +274,12 @@ def render_home_page():
                 How FamilyCare AI Works
             </h2>
         </div>
-        """,
-        unsafe_allow_html=True
+        """
     )
 
     s1, s2, s3, s4 = st.columns(4)
     with s1:
-        st.markdown(
+        render_html(
             """
             <div class="fc-step-card">
                 <div class="fc-step-num">Step 1</div>
@@ -302,11 +288,10 @@ def render_home_page():
                     Register family members across cities and designate primary caregivers.
                 </p>
             </div>
-            """,
-            unsafe_allow_html=True
+            """
         )
     with s2:
-        st.markdown(
+        render_html(
             """
             <div class="fc-step-card">
                 <div class="fc-step-num">Step 2</div>
@@ -315,11 +300,10 @@ def render_home_page():
                     Elderly parent taps "I'm Okay" each morning and logs medication acknowledgements.
                 </p>
             </div>
-            """,
-            unsafe_allow_html=True
+            """
         )
     with s3:
-        st.markdown(
+        render_html(
             """
             <div class="fc-step-card">
                 <div class="fc-step-num">Step 3</div>
@@ -328,11 +312,10 @@ def render_home_page():
                     Siblings claim tasks and appointments without stepping on each other's toes.
                 </p>
             </div>
-            """,
-            unsafe_allow_html=True
+            """
         )
     with s4:
-        st.markdown(
+        render_html(
             """
             <div class="fc-step-card">
                 <div class="fc-step-num">Step 4</div>
@@ -341,8 +324,7 @@ def render_home_page():
                     Gemini AI distills weekly progress and flags patterns requiring attention.
                 </p>
             </div>
-            """,
-            unsafe_allow_html=True
+            """
         )
 
     # 7. Medical Disclaimer Banner

@@ -17,6 +17,7 @@ try:
 except (ImportError, ModuleNotFoundError):
     from database import init_db, seed_hackathon_demo_data
 from services.member_service import get_family_members
+from components.ui_helpers import render_html
 
 # Initialize Page Configuration
 st.set_page_config(
@@ -62,23 +63,20 @@ pages = {
 
 # Sidebar Custom Branding & Demo Status
 with st.sidebar:
-    st.markdown(
-        """
-        <div style="padding: 0.5rem 0 1rem 0; border-bottom: 1px solid rgba(155, 134, 238, 0.2); margin-bottom: 1rem;">
-            <div style="display:flex; align-items:center; gap:8px;">
-                <span style="font-size: 1.8rem;">🌸</span>
-                <div>
-                    <div style="font-size: 1.25rem; font-weight: 800; color: #0F172A; line-height: 1.1;">FamilyCare AI</div>
-                    <div style="font-size: 0.75rem; color: #7052E6; font-weight: 600;">Cross-City Elderly Care</div>
-                </div>
-            </div>
-            <div style="margin-top: 0.6rem; display:flex; align-items:center; gap:6px;">
-                <span class="fc-badge checked-in" style="font-size:0.7rem; padding:2px 8px;">Demo Active</span>
-                <span style="font-size:0.75rem; color:#64748B;">Vance Family • CHI/NYC/SEA</span>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True
+    render_html(
+        """<div style="padding: 0.5rem 0 1rem 0; border-bottom: 1px solid rgba(155, 134, 238, 0.2); margin-bottom: 1rem;">
+<div style="display:flex; align-items:center; gap:8px;">
+<span style="font-size: 1.8rem;">🌸</span>
+<div>
+<div style="font-size: 1.25rem; font-weight: 800; color: #0F172A; line-height: 1.1;">FamilyCare AI</div>
+<div style="font-size: 0.75rem; color: #7052E6; font-weight: 600;">Cross-City Elderly Care</div>
+</div>
+</div>
+<div style="margin-top: 0.6rem; display:flex; align-items:center; gap:6px;">
+<span class="fc-badge checked-in" style="font-size:0.7rem; padding:2px 8px;">Demo Active</span>
+<span style="font-size:0.75rem; color:#64748B;">Vance Family • CHI/NYC/SEA</span>
+</div>
+</div>"""
     )
 
 nav = st.navigation(pages)
