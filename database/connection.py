@@ -15,7 +15,12 @@ ENGINE = create_engine(
     echo=False
 )
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=ENGINE)
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=ENGINE,
+    expire_on_commit=False
+)
 Base = declarative_base()
 
 def init_db():

@@ -96,6 +96,7 @@ def record_checkin(member_id: int, mood: str = "Good", notes: str = "", is_simul
             record.mood = mood
             record.notes = notes
             record.is_simulated = is_simulated
+            db.flush()
         else:
             record = CheckInRecord(
                 member_id=member_id,

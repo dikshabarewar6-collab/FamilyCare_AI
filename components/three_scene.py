@@ -16,13 +16,13 @@ def render_3d_care_scene(height: int = 420):
     - Mouse movement parallax & drag-to-rotate
     - Accessible SVG/Canvas fallback if WebGL is unsupported
     """
-    html_content = f"""
+    template = """
     <!DOCTYPE html>
     <html lang="en">
     <head>
       <meta charset="utf-8" />
       <style>
-        body, html {{
+        body, html {
           margin: 0;
           padding: 0;
           width: 100%;
@@ -30,26 +30,26 @@ def render_3d_care_scene(height: int = 420):
           overflow: hidden;
           background: transparent;
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }}
-        #canvas-container {{
+        }
+        #canvas-container {
           width: 100%;
-          height: {height}px;
+          height: __HEIGHT__px;
           position: relative;
           background: radial-gradient(circle at 50% 50%, rgba(243, 240, 253, 0.7) 0%, rgba(230, 255, 250, 0.4) 60%, transparent 100%);
           border-radius: 20px;
           overflow: hidden;
           box-shadow: inset 0 0 40px rgba(112, 82, 230, 0.05);
-        }}
-        #three-canvas {{
+        }
+        #three-canvas {
           width: 100%;
           height: 100%;
           display: block;
           cursor: grab;
-        }}
-        #three-canvas:active {{
+        }
+        #three-canvas:active {
           cursor: grabbing;
-        }}
-        .hud-badge {{
+        }
+        .hud-badge {
           position: absolute;
           bottom: 12px;
           left: 16px;
@@ -65,27 +65,15 @@ def render_3d_care_scene(height: int = 420):
           display: flex;
           align-items: center;
           gap: 6px;
-        }}
-        .hud-city {{
-          position: absolute;
-          font-size: 11px;
-          font-weight: 700;
-          color: #0F172A;
-          background: rgba(255, 255, 255, 0.9);
-          border: 1px solid rgba(13, 148, 136, 0.3);
-          padding: 2px 8px;
-          border-radius: 8px;
-          pointer-events: none;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        }}
-        #fallback-scene {{
+        }
+        #fallback-scene {
           display: none;
           width: 100%;
           height: 100%;
           align-items: center;
           justify-content: center;
           text-align: center;
-        }}
+        }
       </style>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     </head>
@@ -96,7 +84,7 @@ def render_3d_care_scene(height: int = 420):
           <span>🌐</span> Real-Time 3D Care Orbit • Drag to Rotate
         </div>
         <div id="fallback-scene">
-          <svg width="100%" height="{height}" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+          <svg width="100%" height="__HEIGHT__" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" style="stop-color:#9B86EE;stop-opacity:0.8" />
@@ -141,7 +129,7 @@ def render_3d_care_scene(height: int = 420):
           }
 
           const width = container.clientWidth || 600;
-          const height = container.clientHeight || {height};
+          const height = container.clientHeight || __HEIGHT__;
 
           // 1. Scene, Camera, Renderer
           const scene = new THREE.Scene();
@@ -308,7 +296,6 @@ def render_3d_care_scene(height: int = 420):
               prevMouseX = e.clientX;
               prevMouseY = e.clientY;
             } else if (mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
-              // Subtle parallax tilt
               const normX = (mouseX / width - 0.5) * 2;
               const normY = (mouseY / height - 0.5) * 2;
               camera.position.x += (normX * 3 - camera.position.x) * 0.05;
@@ -332,29 +319,24 @@ def render_3d_care_scene(height: int = 420):
             requestAnimationFrame(animate);
             const t = clock.getElapsedTime();
 
-            // Smooth rotation damping
             coreGroup.rotation.y += (targetRotY - coreGroup.rotation.y) * 0.06;
             coreGroup.rotation.x += (targetRotX - coreGroup.rotation.x) * 0.06;
             ringGroup.rotation.y += 0.004;
             ringGroup.rotation.z += 0.002;
 
-            // Heart gentle pulse
             const pulse = 1 + 0.06 * Math.sin(t * 3.2);
             heartMesh.scale.set(pulse, pulse, pulse);
             haloMesh.rotation.y -= 0.008;
             haloMesh.rotation.x += 0.005;
 
-            // Pill floating & tumbling
             pillGroup.position.y = 3 + Math.sin(t * 1.8) * 0.6;
             pillGroup.rotation.x += 0.012;
             pillGroup.rotation.y += 0.018;
 
-            // Orbiting nodes bobbing
             nodeChi.position.y = -6.5 + Math.sin(t * 1.5) * 0.4;
             nodeNYC.position.y = 4.2 + Math.cos(t * 1.6) * 0.4;
             nodeSEA.position.y = -2.5 + Math.sin(t * 1.4 + 1) * 0.4;
 
-            // Ambient particles gentle drift
             particles.rotation.y = t * 0.02;
 
             renderer.render(scene, camera);
@@ -366,4 +348,5 @@ def render_3d_care_scene(height: int = 420):
     </body>
     </html>
     """
+    html_content = template.replace("__HEIGHT__", str(height))
     components.html(html_content, height=height, scrolling=False)

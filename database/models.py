@@ -1,12 +1,15 @@
 """
 SQLAlchemy ORM Data Models for FamilyCare AI.
 """
-from datetime import datetime, date, time
+from datetime import datetime, date, time, timezone
 from sqlalchemy import (
     Column, Integer, String, Boolean, DateTime, Date, Time, Text, ForeignKey, Float
 )
 from sqlalchemy.orm import relationship
 from database.connection import Base
+
+def utc_now():
+    return datetime.now(timezone.utc)
 
 class Family(Base):
     __tablename__ = "families"
@@ -15,7 +18,7 @@ class Family(Base):
     name = Column(String(100), nullable=False)
     primary_city = Column(String(100), default="Chicago, IL")
     notes = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now)
 
     # Relationships
     members = relationship("FamilyMember", back_populates="family", cascade="all, delete-orphan", foreign_keys="FamilyMember.family_id")
@@ -30,7 +33,7 @@ class User(Base):
     full_name = Column(String(100), nullable=False)
     role = Column(String(50), default="Caregiver")
     password_hash = Column(String(255), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now)
 
 class FamilyMember(Base):
     __tablename__ = "family_members"
@@ -57,8 +60,8 @@ class FamilyMember(Base):
     # Assigned caregiver among family members
     assigned_caregiver_id = Column(Integer, ForeignKey("family_members.id"), nullable=True)
 
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now)
+    updated_at = Column(DateTime, default=utc_now, onupdate=utc_now)
 
     # Relationships
     family = relationship("Family", back_populates="members", foreign_keys=[family_id])
@@ -79,7 +82,7 @@ class CheckInRecord(Base):
     mood = Column(String(30), nullable=True)  # Good, Energetic, Tired, Low Energy
     notes = Column(Text, nullable=True)
     is_simulated = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now)
 
     # Relationships
     member = relationship("FamilyMember", back_populates="checkins")
@@ -95,7 +98,7 @@ class MedicationReminder(Base):
     frequency = Column(String(40), default="Daily")  # Daily, Twice Daily, Weekly
     instructions = Column(Text, nullable=True)
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now)
 
     # Relationships
     member = relationship("FamilyMember", back_populates="medications")
@@ -132,7 +135,7 @@ class Appointment(Base):
     status = Column(String(30), default="Upcoming")  # Upcoming, Completed, Rescheduled, Cancelled
     transport_notes = Column(Text, nullable=True)
     notes = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now)
 
     # Relationships
     member = relationship("FamilyMember", back_populates="appointments", foreign_keys=[member_id])
@@ -150,7 +153,7 @@ class CareTask(Base):
     priority = Column(String(20), default="Medium")  # High, Medium, Low
     status = Column(String(30), default="Pending")  # Pending, In Progress, Completed
     assigned_member_id = Column(Integer, ForeignKey("family_members.id"), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now)
     completed_at = Column(DateTime, nullable=True)
 
     # Relationships
@@ -169,7 +172,7 @@ class Notification(Base):
     priority = Column(String(20), default="Info")  # Info, Warning, Urgent
     is_read = Column(Boolean, default=False)
     is_simulated = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now)
 
     # Relationships
     family = relationship("Family", back_populates="notifications")

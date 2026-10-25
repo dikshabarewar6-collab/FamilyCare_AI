@@ -1,7 +1,7 @@
 """
 Service layer for Family Care Tasks and Household Coordination.
 """
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 from typing import List, Optional, Dict, Any
 from database.connection import get_db
 from database.models import CareTask, FamilyMember, Notification
@@ -56,7 +56,7 @@ def update_task_status(task_id: int, new_status: str) -> Optional[CareTask]:
             return None
         task.status = new_status
         if new_status == "Completed":
-            task.completed_at = datetime.utcnow()
+            task.completed_at = datetime.now(timezone.utc)
         db.flush()
         db.refresh(task)
         return task
