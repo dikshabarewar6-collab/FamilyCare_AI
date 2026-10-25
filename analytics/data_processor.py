@@ -12,6 +12,7 @@ from database.models import CheckInRecord, MedicationLog, CareTask, FamilyMember
 
 def get_checkin_metrics(family_id: int = 1) -> Dict[str, Any]:
     """Calculate check-in completion rates, weekly trends, and delay distribution using Pandas."""
+    data = []
     with get_db() as db:
         records = (
             db.query(CheckInRecord)
@@ -20,7 +21,32 @@ def get_checkin_metrics(family_id: int = 1) -> Dict[str, Any]:
             .all()
         )
 
-    if not records:
+        for r in records:
+            actual_hour = r.actual_checkin_time.hour + (r.actual_checkin_time.minute / 60.0) if r.actual_checkin_time else None
+            
+            # Calculate delay from scheduled time
+            delay_mins = None
+            if r.actual_checkin_time:
+                try:
+                    parts = [int(p) for p in r.scheduled_time.split(":")]
+                    sched_dt = datetime.combine(r.checkin_date, datetime.min.time().replace(hour=parts[0], minute=parts[1]))
+                    delay_mins = (r.actual_checkin_time - sched_dt).total_seconds() / 60.0
+                except Exception:
+                    delay_mins = 0.0
+
+            data.append({
+                "date": r.checkin_date,
+                "weekday": r.checkin_date.strftime("%a"),
+                "weekday_num": r.checkin_date.weekday(),
+                "status": r.status,
+                "mood": r.mood,
+                "actual_hour": actual_hour,
+                "delay_mins": delay_mins,
+                "is_checked_in": 1 if r.status == "Checked In" else 0,
+                "is_missed": 1 if r.status == "Missed Check-In" else 0
+            })
+
+    if not data:
         return {
             "total_records": 0,
             "completion_rate": 0.0,
@@ -31,32 +57,6 @@ def get_checkin_metrics(family_id: int = 1) -> Dict[str, Any]:
             "weekday_df": pd.DataFrame(),
             "hourly_df": pd.DataFrame()
         }
-
-    data = []
-    for r in records:
-        actual_hour = r.actual_checkin_time.hour + (r.actual_checkin_time.minute / 60.0) if r.actual_checkin_time else None
-        
-        # Calculate delay from scheduled time
-        delay_mins = None
-        if r.actual_checkin_time:
-            try:
-                parts = [int(p) for p in r.scheduled_time.split(":")]
-                sched_dt = datetime.combine(r.checkin_date, datetime.min.time().replace(hour=parts[0], minute=parts[1]))
-                delay_mins = (r.actual_checkin_time - sched_dt).total_seconds() / 60.0
-            except Exception:
-                delay_mins = 0.0
-
-        data.append({
-            "date": r.checkin_date,
-            "weekday": r.checkin_date.strftime("%a"),
-            "weekday_num": r.checkin_date.weekday(),
-            "status": r.status,
-            "mood": r.mood,
-            "actual_hour": actual_hour,
-            "delay_mins": delay_mins,
-            "is_checked_in": 1 if r.status == "Checked In" else 0,
-            "is_missed": 1 if r.status == "Missed Check-In" else 0
-        })
 
     df = pd.DataFrame(data)
     total = len(df)
@@ -104,6 +104,7 @@ def get_checkin_metrics(family_id: int = 1) -> Dict[str, Any]:
 
 def get_medication_metrics(family_id: int = 1) -> Dict[str, Any]:
     """Calculate medication acknowledgement adherence and frequency trends using Pandas."""
+    data = []
     with get_db() as db:
         logs = (
             db.query(MedicationLog)
@@ -112,7 +113,17 @@ def get_medication_metrics(family_id: int = 1) -> Dict[str, Any]:
             .all()
         )
 
-    if not logs:
+        for l in logs:
+            med_name = l.reminder.medication_name if l.reminder else "Unknown Med"
+            data.append({
+                "date": l.log_date,
+                "medication": med_name,
+                "status": l.status,
+                "is_taken": 1 if l.status == "Taken" else 0,
+                "is_skipped": 1 if l.status == "Skipped" else 0
+            })
+
+    if not data:
         return {
             "total_logs": 0,
             "adherence_rate": 0.0,
@@ -121,17 +132,6 @@ def get_medication_metrics(family_id: int = 1) -> Dict[str, Any]:
             "med_breakdown_df": pd.DataFrame(),
             "trend_df": pd.DataFrame()
         }
-
-    data = []
-    for l in logs:
-        med_name = l.reminder.medication_name if l.reminder else "Unknown Med"
-        data.append({
-            "date": l.log_date,
-            "medication": med_name,
-            "status": l.status,
-            "is_taken": 1 if l.status == "Taken" else 0,
-            "is_skipped": 1 if l.status == "Skipped" else 0
-        })
 
     df = pd.DataFrame(data)
     total = len(df)
@@ -175,32 +175,33 @@ def get_medication_metrics(family_id: int = 1) -> Dict[str, Any]:
 def get_task_metrics(family_id: int = 1) -> Dict[str, Any]:
     """Calculate care task completion velocity, priority distribution, and overdue count."""
     today = date.today()
+    data = []
     with get_db() as db:
         tasks = db.query(CareTask).filter(CareTask.family_id == family_id).all()
 
-    if not tasks:
+        for t in tasks:
+            is_overdue = 1 if (t.status != "Completed" and t.due_date < today) else 0
+            assignee_name = t.assigned_member.full_name if t.assigned_member else "Unassigned"
+            data.append({
+                "title": t.title,
+                "category": t.category,
+                "priority": t.priority,
+                "status": t.status,
+                "is_overdue": is_overdue,
+                "assignee": assignee_name,
+                "due_date": t.due_date
+            })
+
+    if not data:
         return {
             "total_tasks": 0,
             "completed": 0,
             "pending": 0,
             "overdue": 0,
             "category_df": pd.DataFrame(),
-            "priority_df": pd.DataFrame()
+            "priority_df": pd.DataFrame(),
+            "raw_df": pd.DataFrame()
         }
-
-    data = []
-    for t in tasks:
-        is_overdue = 1 if (t.status != "Completed" and t.due_date < today) else 0
-        assignee_name = t.assigned_member.full_name if t.assigned_member else "Unassigned"
-        data.append({
-            "title": t.title,
-            "category": t.category,
-            "priority": t.priority,
-            "status": t.status,
-            "is_overdue": is_overdue,
-            "assignee": assignee_name,
-            "due_date": t.due_date
-        })
 
     df = pd.DataFrame(data)
     total = len(df)
