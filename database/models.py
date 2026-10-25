@@ -63,9 +63,9 @@ class FamilyMember(Base):
     # Relationships
     family = relationship("Family", back_populates="members", foreign_keys=[family_id])
     assigned_caregiver = relationship("FamilyMember", remote_side=[id], foreign_keys=[assigned_caregiver_id])
-    checkins = relationship("CheckInRecord", back_populates="member", cascade="all, delete-orphan")
-    medications = relationship("MedicationReminder", back_populates="member", cascade="all, delete-orphan")
-    appointments = relationship("Appointment", back_populates="member", cascade="all, delete-orphan")
+    checkins = relationship("CheckInRecord", back_populates="member", cascade="all, delete-orphan", foreign_keys="[CheckInRecord.member_id]")
+    medications = relationship("MedicationReminder", back_populates="member", cascade="all, delete-orphan", foreign_keys="[MedicationReminder.member_id]")
+    appointments = relationship("Appointment", back_populates="member", cascade="all, delete-orphan", foreign_keys="[Appointment.member_id]")
 
 class CheckInRecord(Base):
     __tablename__ = "checkin_records"
