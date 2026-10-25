@@ -2,6 +2,14 @@
 About and Privacy Page for FamilyCare AI.
 System architecture, privacy notice, medical disclaimers, and hackathon presentation summary.
 """
+import sys
+from pathlib import Path
+
+# Ensure project root is in sys.path
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
 import streamlit as st
 from components.ui_helpers import (
     apply_custom_css, render_page_header, render_disclaimer, render_ai_badge

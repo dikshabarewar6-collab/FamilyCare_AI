@@ -3,6 +3,14 @@ Family Dashboard Page.
 Real-time care metrics read from SQLite, quick action shortcuts,
 recent notifications feed, and judge demo controls.
 """
+import sys
+from pathlib import Path
+
+# Ensure project root is in sys.path
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
 from datetime import date, datetime
 import streamlit as st
 from components.ui_helpers import (

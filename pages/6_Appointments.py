@@ -2,6 +2,14 @@
 Doctor & Specialist Appointments Page.
 Schedule medical visits, assign caregiver escorts, and coordinate transport logistics.
 """
+import sys
+from pathlib import Path
+
+# Ensure project root is in sys.path
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
 from datetime import datetime, date, time
 import streamlit as st
 from components.ui_helpers import (

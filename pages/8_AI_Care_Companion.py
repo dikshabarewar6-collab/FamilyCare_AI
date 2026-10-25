@@ -2,6 +2,14 @@
 AI Care Companion Page powered by Google Gemini API.
 Privacy-conscious weekly care synthesis, caregiver checklists, and smart cross-city coordination.
 """
+import sys
+from pathlib import Path
+
+# Ensure project root is in sys.path
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
 import streamlit as st
 from components.ui_helpers import (
     apply_custom_css, render_page_header, render_ai_badge, render_disclaimer

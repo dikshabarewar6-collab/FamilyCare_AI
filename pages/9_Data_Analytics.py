@@ -2,6 +2,14 @@
 Data Analytics & 3D Visual Experience Page.
 Pandas-powered metrics, Plotly interactive 2D charts, and multi-dimensional 3D activity pattern analysis.
 """
+import sys
+from pathlib import Path
+
+# Ensure project root is in sys.path
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
 import streamlit as st
 from components.ui_helpers import (
     apply_custom_css, render_page_header, render_metric_card, render_disclaimer

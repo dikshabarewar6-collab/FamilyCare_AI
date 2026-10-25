@@ -3,11 +3,18 @@ Seed data generator and database reset utility for FamilyCare AI demo experience
 Creates a realistic multi-city family: Eleanor Vance (Chicago), Sarah (NYC), David (Seattle).
 """
 from datetime import datetime, date, timedelta, time
-from database.connection import get_db, Base, ENGINE
-from database.models import (
-    Family, FamilyMember, CheckInRecord, MedicationReminder, MedicationLog,
-    Appointment, CareTask, Notification
-)
+try:
+    from .connection import get_db, Base, ENGINE
+    from .models import (
+        Family, FamilyMember, CheckInRecord, MedicationReminder, MedicationLog,
+        Appointment, CareTask, Notification
+    )
+except (ImportError, ValueError):
+    from database.connection import get_db, Base, ENGINE
+    from database.models import (
+        Family, FamilyMember, CheckInRecord, MedicationReminder, MedicationLog,
+        Appointment, CareTask, Notification
+    )
 
 def reset_database():
     """Drop and recreate all tables to start completely fresh."""

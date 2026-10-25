@@ -25,7 +25,10 @@ Base = declarative_base()
 
 def init_db():
     """Create all tables in the SQLite database if they don't already exist."""
-    from database import models  # ensure models are imported
+    try:
+        from . import models
+    except (ImportError, ValueError):
+        from database import models
     Base.metadata.create_all(bind=ENGINE)
 
 @contextmanager

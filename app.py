@@ -2,8 +2,15 @@
 FamilyCare AI - Smart Elderly Care & Family Coordination Platform
 Main Streamlit Application Entrypoint & Modern Multi-Page Navigation.
 """
-import streamlit as st
+import sys
 from pathlib import Path
+
+# Ensure project root directory is ALWAYS at the beginning of sys.path
+ROOT_DIR = Path(__file__).resolve().parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+import streamlit as st
 from database.connection import init_db
 from database.seed_data import seed_hackathon_demo_data
 from services.member_service import get_family_members
