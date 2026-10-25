@@ -17,7 +17,12 @@ try:
 except (ImportError, ModuleNotFoundError):
     from database import init_db, seed_hackathon_demo_data
 from services.member_service import get_family_members
-from components.ui_helpers import render_html
+try:
+    from components.ui_helpers import render_html
+except (ImportError, ModuleNotFoundError):
+    def render_html(html_str: str):
+        lines = [line.strip() for line in html_str.strip().splitlines() if line.strip()]
+        st.markdown("\n".join(lines), unsafe_allow_html=True)
 
 # Initialize Page Configuration
 st.set_page_config(

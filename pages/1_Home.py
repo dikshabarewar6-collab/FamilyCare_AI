@@ -10,7 +10,13 @@ if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
 import streamlit as st
-from components.ui_helpers import apply_custom_css, render_disclaimer, render_ai_badge, render_html
+try:
+    from components.ui_helpers import apply_custom_css, render_disclaimer, render_ai_badge, render_html
+except (ImportError, ModuleNotFoundError):
+    from components.ui_helpers import apply_custom_css, render_disclaimer, render_ai_badge
+    def render_html(html_str: str):
+        lines = [line.strip() for line in html_str.strip().splitlines() if line.strip()]
+        st.markdown("\n".join(lines), unsafe_allow_html=True)
 from components.three_scene import render_3d_care_scene
 import config
 
